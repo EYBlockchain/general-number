@@ -1,0 +1,33 @@
+{
+  "name": "general-number",
+  "version": "1.0.0",
+  "description": "A general number class for easily converting a number to various types",
+  "main": "index.js",
+  "scripts": {
+    "lint": "cod-scripts lint",
+    "test": "jest --verbose --runInBand ./__tests__/*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/EYBlockchain/general-number.git",
+    "directory": "general-number"
+  },
+  "contributors": [
+    "Michael Connor <Michael.Connor@uk.ey.com>",
+    "Duncan Westland <Duncan.Westland@uk.ey.com>"
+  ],
+  "license": "CC0-1.0",
+  "devDependencies": {
+    "cod-scripts": "^4.0.3",
+    "eslint": "^6.8.0",
+    "jest": "^26.2.2"
+  },
+  "dependencies": {
+    "nightlite-utils": "file:.yalc/nightlite-utils",
+    "winston": "^3.3.3"
+  },
+  "publishConfig": {
+    "registry": "http://registry.npmjs.org/",
+    "access": "public"
+  }
+}

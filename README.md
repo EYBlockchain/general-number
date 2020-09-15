@@ -19,7 +19,7 @@ A library for easily converting a number to various types.
 ## Install
 
 In your NodeJS project:  
-`npm i -s general-number`
+`npm i general-number`
 
 ## Usage
 
@@ -27,7 +27,7 @@ In your NodeJS project:
 
 ### new GN()
 
-If passed a some value, `new GN()` will infer the type of that value, and can return conversions of that value through custom getters:
+If passed some value, `new GN()` will infer the type of that value, and can return conversions of that value through custom getters:
 
 ```js
 import { GN } from 'general-number';
@@ -82,10 +82,10 @@ console.log(myGN.limbs(16, 4, 'hex'));
 // should return as 4x 16-bit hex limbs: ['0x0', '0x0', '0x1234', '0x5678']
 
 console.log(myGN.ascii);
-// should return as an ascii string: '#Eg'
+// should return as an ascii string: '#Eg'
 
 console.log(myGN.utf8);
-// should return as an ascii string: 'x'
+// should return as an ascii string: 'x'
 
 ```
 

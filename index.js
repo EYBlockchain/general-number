@@ -17,7 +17,7 @@ const {
   decToHex,
   utf8ToHex,
   asciiToHex,
-} = require('nightlite-utils');
+} = require('zkp-utils');
 const { logger } = require('./logger');
 
 /**

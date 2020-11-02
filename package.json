@@ -1,5 +1,5 @@
 {
-  "name": "general-number",
+  "name": "@eyblockchain/general-number",
   "version": "1.0.0",
   "description": "A general number class for easily converting a number to various types",
   "main": "index.js",
@@ -28,7 +28,6 @@
     "zkp-utils": "^1.0.7"
   },
   "publishConfig": {
-    "registry": "http://registry.npmjs.org/",
-    "access": "public"
+    "registry": "https://npm.pkg.github.com"
   }
 }

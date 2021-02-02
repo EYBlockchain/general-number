@@ -182,13 +182,13 @@ class GeneralNumber {
     return BigInt(this._hex);
   }
 
-  get booleam() {
+  get boolean() {
     switch (BigInt(this._hex)) {
       default:
         throw new Error(`${this._hex} cannot be converted to boolean`);
-      case 1:
+      case 1n:
         return true;
-      case 0:
+      case 0n:
         return false;
     }
   }

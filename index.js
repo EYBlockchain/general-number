@@ -36,7 +36,7 @@ const inferType = value => {
     // ensure all elements of the array are of the same type:
     if (value.map(inferType).every((val, i, arr) => val === arr[0])) return 'limbs'; // infer arrays whcich contain elements of the same type as 'limbs'
   }
-  if (typeof thing === 'object') {
+  if (typeof value === 'object') {
     throw new Error(
       `Cannot construct a new GeneralNumber from an object (unless it's a 'BigInt' or 'limbs' array). Received ${value}. Try using the 'generalise()' function on this object instead.`,
     );
@@ -182,13 +182,13 @@ class GeneralNumber {
     return BigInt(this._hex);
   }
 
-  get booleam() {
+  get boolean() {
     switch (BigInt(this._hex)) {
       default:
         throw new Error(`${this._hex} cannot be converted to boolean`);
-      case 1:
+      case BigInt(1):
         return true;
-      case 0:
+      case BigInt(0):
         return false;
     }
   }

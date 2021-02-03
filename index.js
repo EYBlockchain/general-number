@@ -186,9 +186,9 @@ class GeneralNumber {
     switch (BigInt(this._hex)) {
       default:
         throw new Error(`${this._hex} cannot be converted to boolean`);
-      case 1n:
+      case BigInt(1):
         return true;
-      case 0n:
+      case BigInt(0):
         return false;
     }
   }

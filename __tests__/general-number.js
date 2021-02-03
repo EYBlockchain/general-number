@@ -148,9 +148,9 @@ describe('GeneralNumber class', () => {
   });
 
   test('Create GN from boolean', () => {
-    const gn = new GN(true,'boolean')
-    expect(gn.boolean).toEqual(true)
-  })
+    const gn = new GN(true, 'boolean');
+    expect(gn.boolean).toEqual(true);
+  });
 });
 
 describe('generalise function', () => {

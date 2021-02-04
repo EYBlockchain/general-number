@@ -110,7 +110,7 @@ console.log(myGN.hex());
 
 Generalise is a powerful function for generalising _all_ values within an object or an array.
 
-Americans: don't worry, `generalize` works too!
+:us: Americans: don't worry, `generalize` works too!
 
 ```js
 import { generalise } from 'general-number';

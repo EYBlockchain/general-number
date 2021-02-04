@@ -19,7 +19,7 @@ A library for easily converting a number to various types.
 ## Install
 
 In your NodeJS project:  
-`npm i general-number`
+`npm i @eyblockchain/general-number`
 
 ## Usage
 

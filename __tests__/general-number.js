@@ -146,6 +146,11 @@ describe('GeneralNumber class', () => {
     expect(gn.limbs(32)).toEqual(['104', '1701604463']);
     expect(gn.limbs(32, 4)).toEqual(['0', '0', '104', '1701604463']);
   });
+
+  test('Create GN from boolean', () => {
+    const gn = new GN(true, 'boolean');
+    expect(gn.boolean).toEqual(true);
+  });
 });
 
 describe('generalise function', () => {

@@ -17,7 +17,7 @@ const {
   decToHex,
   utf8ToHex,
   asciiToHex,
-} = require('zkp-utils');
+} = require('@eyblockchain/zkp-utils');
 const { logger } = require('./logger');
 
 /**

@@ -1,4 +1,4 @@
-const { hexToBinArray, hexToBytes } = require('zkp-utils');
+const { hexToBinArray, hexToBytes } = require('@eyblockchain/zkp-utils');
 const { generalise, GN, GO, stitchLimbs } = require('../index');
 
 const dec = '17408914224622445472';

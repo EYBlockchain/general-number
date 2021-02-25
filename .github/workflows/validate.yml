@@ -18,5 +18,13 @@ jobs:
           node-version: ${{ matrix.node }}
 
       - run: npm install
+        env:
+          NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - run: npm run lint
+        env:
+          NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - run: npm run test
+        env:
+          NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}

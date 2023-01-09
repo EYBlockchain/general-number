@@ -4,6 +4,7 @@
   "description": "general-number is a library to perform conversion among different types (eg., BigInt, Hexdecimal String, Binary String, Integer, Decimal, Number, Limbs, UTF8, and Field)",
   "main": "index.js",
   "scripts": {
+    "lint": "eslint .",
     "test": "mocha"
   },
   "repository": {

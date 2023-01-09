@@ -256,7 +256,6 @@ describe('Convert to utf8', () => {
 });
 
 describe('Create GN from limbs', () => {
-  //   const gn1 = new GN(limbs32, 32n);
   const gn = new GN([4053328704n, 1004381088n], 32n);
   it('should convert to bigint correctly', function () {
     chai.expect(bigintNumber).to.eql(gn.bigint);
@@ -300,7 +299,6 @@ describe('Create GN from limbs', () => {
 });
 
 describe('Create GN from utf8', () => {
-  //   const gn1 = new GN(limbs32, 32n);
   const gn = new GN('hello');
   it('should convert to bigint correctly', function () {
     chai.expect(448378203247n).to.eql(gn.bigint);
@@ -415,6 +413,7 @@ describe('generalise function', () => {
 });
 
 describe('the ".all" property', () => {
+  // Global test exmaples are out of number range, new examples are defined here
   const hexStringSmall = '0x7b';
   const binStringSmall = '1111011';
   const objectSmall = {
@@ -467,16 +466,7 @@ describe('the ".all" property', () => {
   });
 
   it('Call ".all" on an array of objects', () => {
-    // const hexString = '0x7b';
-    // const binString = '1111011';
-    // const object = {
-    //   binString,
-    //   hexString,
-    // };
-    // const array = [binString, hexString];
     const arrayOfObjectsSmall = [objectSmall, objectSmall];
-    // const objectOfArrays = { key0: array, key1: array };
-    // const obj = generalise(object);
     const arrSmall = generalise(arrayOfObjectsSmall);
     const go = new GO(arrayOfObjectsSmall);
     const gn = new GN(hexStringSmall);
@@ -567,10 +557,6 @@ BigInt.prototype.mod = function (_m) {
   return ((this % _m) + _m) % _m;
 };
 describe('arithmatic function', () => {
-  // const gnNumber = new GN(333);
-  // const gnLimbs = new GN([4n, 2n], 2n);
-  // const gnUtf8 = new GN('hello');
-
   it('should perform addition correctly', function () {
     const gnBigint = new GN(120n);
     const gnHex = new GN('0x123');

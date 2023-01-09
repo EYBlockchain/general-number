@@ -16,17 +16,16 @@
   "bugs": {
     "url": "https://github.com/EYBlockchain/general-number/issues"
   },
-"devDependencies": {
-    "eslint": "^6.8.0",
-    "eslint-config-codfish": "2.5.0",
+  "devDependencies": {
     "prettier": "^2.0.5"
   },
-   "dependencies": {
+  "dependencies": {
+    "@babel/core": "^7.20.12",
+    "chai": "^4.3.7",
+    "eslint": "^8.31.0",
+    "eslint-config-codfish": "^11.1.0",
+    "mocha": "^10.1.0",
     "winston": "^3.3.3"
   },
-  "homepage": "https://github.com/EYBlockchain/general-number#readme",
-  "dependencies": {
-    "chai": "^4.3.7",
-    "mocha": "^10.1.0"
-  }
+  "homepage": "https://github.com/EYBlockchain/general-number#readme"
 }

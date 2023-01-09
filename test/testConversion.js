@@ -1,23 +1,25 @@
+/* eslint-disable func-names */
 // /**
 //  * To test conversion in conversion.js
 //  */
-const chai = require("chai");
-con = require("../conversion");
+const chai = require('chai');
+const con = require('../conversion');
 
-describe("bigintToHex", function () {
+describe('bigintToHex', function () {
   const inputs = [
     {
       _bigint: 2124979127492149712904023748231859237523n,
-      _hex: "0x63ea817e16d6ab0d485b57a2eb7237293",
+      _hex: '0x63ea817e16d6ab0d485b57a2eb7237293',
     },
     {
       _bigint: -2124979127492149712904023748231859237523n,
-      _hex: "0x63ea817e16d6ab0d485b57a2eb7237293",
+      _hex: '0x63ea817e16d6ab0d485b57a2eb7237293',
     },
   ];
 
   for (const input of inputs) {
     if (input._bigint >= 0) {
+      // eslint-disable-next-line no-loop-func
       describe(`bigintToHex(${input._bigint})`, function () {
         it(`should return ${input._hex}`, function () {
           const ret = con.bigintToHex(input._bigint);
@@ -25,29 +27,29 @@ describe("bigintToHex", function () {
         });
       });
     } else {
-      it("should throw new Error", function () {
+      it('should throw new Error', function () {
         chai.expect(() => con.bigintToHex(input._bigint)).to.throw();
       });
     }
   }
 });
 
-describe("hexToBigint", function () {
+describe('hexToBigint', function () {
   const inputs = [
     {
       _bigint: 2124979127492149712904023748231859237523n,
-      _hex: "0x63ea817e16d6ab0d485b57a2eb7237293",
+      _hex: '0x63ea817e16d6ab0d485b57a2eb7237293',
     },
     {
       _bigint: 2124979127492149712904023748231859237523n,
-      _hex: "aaa",
+      _hex: 'aaa',
     },
   ];
 
   for (const input of inputs) {
     const hexMatch = input._hex.match(/^(0x)([\da-fA-F]+)$/);
     if (hexMatch == null) {
-      it("should throw new Error", function () {
+      it('should throw new Error', function () {
         chai.expect(() => con.hexToBigint(input._hex)).to.throw();
       });
     } else {
@@ -61,16 +63,16 @@ describe("hexToBigint", function () {
   }
 });
 
-describe("bigintToBinary", function () {
+describe('bigintToBinary', function () {
   const inputs = [
     {
       _bigint: 10000n,
-      _binary: "10011100010000",
+      _binary: '10011100010000',
     },
     {
       _bigint: 2124979127492149712904023748231859237523n,
       _binary:
-        "11000111110101010000001011111100001011011010110101010110000110101001000010110110101011110100010111010110111001000110111001010010011",
+        '11000111110101010000001011111100001011011010110101010110000110101001000010110110101011110100010111010110111001000110111001010010011',
     },
   ];
 
@@ -84,7 +86,7 @@ describe("bigintToBinary", function () {
   }
 });
 
-describe("bigintToBinaryArray", function () {
+describe('bigintToBinaryArray', function () {
   const inputs = [
     {
       _bigint: 10000n,
@@ -102,34 +104,34 @@ describe("bigintToBinaryArray", function () {
   }
 });
 
-describe("binaryToBigint", function () {
+describe('binaryToBigint', function () {
   const inputs = [
     {
       _bigint: 10000n,
-      _binary: "10011100010000",
+      _binary: '10011100010000',
     },
     {
       _bigint: 2124979127492149712904023748231859237523n,
       _binary:
-        "11000111110101010000001011111100001011011010110101010110000110101001000010110110101011110100010111010110111001000110111001010010011",
+        '11000111110101010000001011111100001011011010110101010110000110101001000010110110101011110100010111010110111001000110111001010010011',
     },
     {
       _bigint: 2124979127492149712904023748231859237523n,
-      _binary: "aa",
+      _binary: 'aa',
     },
   ];
 
   for (const input of inputs) {
     let isBinary = false;
     for (let i = 0; i < input._binary.length; i++) {
-      if (input._binary[i] == "0" || input._binary[i] == "1") {
+      if (input._binary[i] === '0' || input._binary[i] === '1') {
         isBinary = true;
       } else {
         isBinary = false;
       }
     }
     if (isBinary === false) {
-      it("should throw new Error", function () {
+      it('should throw new Error', function () {
         chai.expect(() => con.binaryToBigint(input._binary)).to.throw();
       });
     } else {
@@ -143,7 +145,7 @@ describe("binaryToBigint", function () {
   }
 });
 
-describe("bigintToNumber", function () {
+describe('bigintToNumber', function () {
   const inputs = [
     {
       _bigint: 10000n,
@@ -156,11 +158,8 @@ describe("bigintToNumber", function () {
   ];
 
   for (const input of inputs) {
-    if (
-      input._bigint < Number.MIN_SAFE_INTEGER ||
-      input._bigint > Number.MAX_SAFE_INTEGER
-    ) {
-      it("should throw new Error", function () {
+    if (input._bigint < Number.MIN_SAFE_INTEGER || input._bigint > Number.MAX_SAFE_INTEGER) {
+      it('should throw new Error', function () {
         chai.expect(() => con.bigintToNumber(input._bigint)).to.throw();
       });
     } else {
@@ -174,7 +173,7 @@ describe("bigintToNumber", function () {
   }
 });
 
-describe("numberTobigint", function () {
+describe('numberTobigint', function () {
   const inputs = [
     {
       _bigint: 10000n,
@@ -200,7 +199,7 @@ function getBaseLogBigInt(_bigIntBase, _bigIntNumber) {
   return bigIntY / bigIntX;
 }
 
-describe("bigintTolimbs", function () {
+describe('bigintTolimbs', function () {
   const inputs = [
     {
       _bigint: 23n,
@@ -212,30 +211,19 @@ describe("bigintTolimbs", function () {
 
   for (const input of inputs) {
     const minNumberOfLimbs =
-      getBaseLogBigInt(
-        2 ** con.bigintToNumber(input._limbBitLength),
-        input._bigint
-      ) + 1n;
+      getBaseLogBigInt(2 ** con.bigintToNumber(input._limbBitLength), input._bigint) + 1n;
     if (minNumberOfLimbs > input._numberOfLimbs) {
-      it("should throw new Error", function () {
+      it('should throw new Error', function () {
         chai
           .expect(() =>
-            con.minNumberOfLimbs(
-              input._bigint,
-              input._limbBitLength,
-              input._numberOfLimbs
-            )
+            con.minNumberOfLimbs(input._bigint, input._limbBitLength, input._numberOfLimbs),
           )
           .to.throw();
       });
     } else {
       describe(`bigintTolimbs(${input._bigint},${input._limbBitLength},${input._numberOfLimbs})`, function () {
         it(`should return ${input._limbs}`, function () {
-          const ret = con.bigintTolimbs(
-            input._bigint,
-            input._limbBitLength,
-            input._numberOfLimbs
-          );
+          const ret = con.bigintTolimbs(input._bigint, input._limbBitLength, input._numberOfLimbs);
           chai.expect(ret).to.eql(input._limbs);
         });
       });
@@ -243,7 +231,7 @@ describe("bigintTolimbs", function () {
   }
 });
 
-describe("limbsToBigint", function () {
+describe('limbsToBigint', function () {
   const inputs = [
     {
       _bigint: 23n,
@@ -262,7 +250,7 @@ describe("limbsToBigint", function () {
   }
 });
 
-describe("bigintToField", function () {
+describe('bigintToField', function () {
   const inputs = [
     {
       _bigint: 30n,
@@ -280,25 +268,15 @@ describe("bigintToField", function () {
 
   for (const input of inputs) {
     if (input._noOverflow && input._bigint > input._bigintModulus) {
-      it("should throw new Error", function () {
+      it('should throw new Error', function () {
         chai
-          .expect(() =>
-            con.bigintToField(
-              input._bigint,
-              input._bigintModulus,
-              input._noOverflow
-            )
-          )
+          .expect(() => con.bigintToField(input._bigint, input._bigintModulus, input._noOverflow))
           .to.throw();
       });
     } else {
       describe(`bigintToField(${input._bigint},${input._bigintModulus},${input._noOverflow})`, function () {
         it(`should return ${input._field}`, function () {
-          const ret = con.bigintToField(
-            input._bigint,
-            input._bigintModulus,
-            input._noOverflow
-          );
+          const ret = con.bigintToField(input._bigint, input._bigintModulus, input._noOverflow);
           chai.expect(ret).to.equal(input._field);
         });
       });
@@ -306,11 +284,11 @@ describe("bigintToField", function () {
   }
 });
 
-describe("bigintToUtf8", function () {
+describe('bigintToUtf8', function () {
   const inputs = [
     {
       _bigint: 3430008n,
-      _utf8: "4Vx",
+      _utf8: '4Vx',
     },
   ];
 
@@ -323,20 +301,18 @@ describe("bigintToUtf8", function () {
         });
       });
     } else {
-      it("should throw new Error", function () {
-        chai
-          .expect(() => con.bigintToUtf8(input._bigint, input._bigintModulus))
-          .to.throw();
+      it('should throw new Error', function () {
+        chai.expect(() => con.bigintToUtf8(input._bigint, input._bigintModulus)).to.throw();
       });
     }
   }
 });
 
-describe("utf8ToBigint", function () {
+describe('utf8ToBigint', function () {
   const inputs = [
     {
       _bigint: 3430008n,
-      _utf8: "4Vx",
+      _utf8: '4Vx',
     },
   ];
 

@@ -18,7 +18,7 @@
   },
 "devDependencies": {
     "eslint": "^6.8.0",
-    "eslint-config-codfish": "2.5.0",
+    "eslint-config-codfish": "2.5.0"
   },
   "homepage": "https://github.com/EYBlockchain/general-number#readme",
   "dependencies": {

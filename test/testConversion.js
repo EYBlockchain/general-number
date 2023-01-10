@@ -8,12 +8,11 @@ const con = require('../conversion');
 describe('bigintToHex', function () {
   const inputs = [
     {
-      _bigint: 2124979127492149712904023748231859237523n,
+      _bigint: BigInt('2124979127492149712904023748231859237523'),
       _hex: '0x63ea817e16d6ab0d485b57a2eb7237293',
     },
     {
-      _bigint: -2124979127492149712904023748231859237523n,
-      _hex: '0x63ea817e16d6ab0d485b57a2eb7237293',
+      _bigint: BigInt('-2124979127492149712904023748231859237523'),
     },
   ];
 
@@ -27,7 +26,7 @@ describe('bigintToHex', function () {
         });
       });
     } else {
-      it('should throw new Error', function () {
+      it('should throw new Error that the input BigInt is negative', function () {
         chai.expect(() => con.bigintToHex(input._bigint)).to.throw();
       });
     }
@@ -37,11 +36,10 @@ describe('bigintToHex', function () {
 describe('hexToBigint', function () {
   const inputs = [
     {
-      _bigint: 2124979127492149712904023748231859237523n,
+      _bigint: BigInt('2124979127492149712904023748231859237523'),
       _hex: '0x63ea817e16d6ab0d485b57a2eb7237293',
     },
     {
-      _bigint: 2124979127492149712904023748231859237523n,
       _hex: 'aaa',
     },
   ];
@@ -49,7 +47,7 @@ describe('hexToBigint', function () {
   for (const input of inputs) {
     const hexMatch = input._hex.match(/^(0x)([\da-fA-F]+)$/);
     if (hexMatch == null) {
-      it('should throw new Error', function () {
+      it('should throw new Error that Input of hexToBigint must be a hex decimal string.', function () {
         chai.expect(() => con.hexToBigint(input._hex)).to.throw();
       });
     } else {
@@ -66,11 +64,11 @@ describe('hexToBigint', function () {
 describe('bigintToBinary', function () {
   const inputs = [
     {
-      _bigint: 10000n,
+      _bigint: BigInt(10000),
       _binary: '10011100010000',
     },
     {
-      _bigint: 2124979127492149712904023748231859237523n,
+      _bigint: BigInt('2124979127492149712904023748231859237523'),
       _binary:
         '11000111110101010000001011111100001011011010110101010110000110101001000010110110101011110100010111010110111001000110111001010010011',
     },
@@ -89,7 +87,7 @@ describe('bigintToBinary', function () {
 describe('bigintToBinaryArray', function () {
   const inputs = [
     {
-      _bigint: 10000n,
+      _bigint: BigInt(10000),
       _binaryArray: [1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0],
     },
   ];
@@ -107,16 +105,15 @@ describe('bigintToBinaryArray', function () {
 describe('binaryToBigint', function () {
   const inputs = [
     {
-      _bigint: 10000n,
+      _bigint: BigInt(10000),
       _binary: '10011100010000',
     },
     {
-      _bigint: 2124979127492149712904023748231859237523n,
+      _bigint: BigInt('2124979127492149712904023748231859237523'),
       _binary:
         '11000111110101010000001011111100001011011010110101010110000110101001000010110110101011110100010111010110111001000110111001010010011',
     },
     {
-      _bigint: 2124979127492149712904023748231859237523n,
       _binary: 'aa',
     },
   ];
@@ -131,7 +128,7 @@ describe('binaryToBigint', function () {
       }
     }
     if (isBinary === false) {
-      it('should throw new Error', function () {
+      it('should throw new Error that Input of binaryToBigint must be a binary string.', function () {
         chai.expect(() => con.binaryToBigint(input._binary)).to.throw();
       });
     } else {
@@ -148,18 +145,17 @@ describe('binaryToBigint', function () {
 describe('bigintToNumber', function () {
   const inputs = [
     {
-      _bigint: 10000n,
+      _bigint: BigInt(10000),
       _number: 10000,
     },
     {
       _bigint: Number.MIN_SAFE_INTEGER - 1,
-      _number: Number.MIN_SAFE_INTEGER - 1,
     },
   ];
 
   for (const input of inputs) {
     if (input._bigint < Number.MIN_SAFE_INTEGER || input._bigint > Number.MAX_SAFE_INTEGER) {
-      it('should throw new Error', function () {
+      it('should throw new Error that Input of bigintToNumber must be between Number.MIN_SAFE_INTEGER and Number.MAX_SAFE_INTEGER.', function () {
         chai.expect(() => con.bigintToNumber(input._bigint)).to.throw();
       });
     } else {
@@ -176,7 +172,7 @@ describe('bigintToNumber', function () {
 describe('numberTobigint', function () {
   const inputs = [
     {
-      _bigint: 10000n,
+      _bigint: BigInt(10000),
       _number: 10000,
     },
   ];
@@ -193,27 +189,27 @@ describe('numberTobigint', function () {
 
 function getBaseLogBigInt(_bigIntBase, _bigIntNumber) {
   const tempX = _bigIntBase.toString(2).length - 1;
-  const bigIntX = _bigIntBase <= 0n ? 0n : BigInt(tempX);
+  const bigIntX = _bigIntBase <= BigInt(0) ? BigInt(0) : BigInt(tempX);
   const tempY = _bigIntNumber.toString(2).length - 1;
-  const bigIntY = _bigIntNumber <= 0n ? 0n : BigInt(tempY);
+  const bigIntY = _bigIntNumber <= BigInt(0) ? BigInt(0) : BigInt(tempY);
   return bigIntY / bigIntX;
 }
 
 describe('bigintTolimbs', function () {
   const inputs = [
     {
-      _bigint: 23n,
-      _limbBitLength: 2n,
-      _numberOfLimbs: 6n,
-      _limbs: [0n, 0n, 0n, 1n, 1n, 3n],
+      _bigint: BigInt(23),
+      _limbBitLength: BigInt(2),
+      _numberOfLimbs: BigInt(6),
+      _limbs: [BigInt(0), BigInt(0), BigInt(0), BigInt(1), BigInt(1), BigInt(3)],
     },
   ];
 
   for (const input of inputs) {
     const minNumberOfLimbs =
-      getBaseLogBigInt(2 ** con.bigintToNumber(input._limbBitLength), input._bigint) + 1n;
+      getBaseLogBigInt(2 ** con.bigintToNumber(input._limbBitLength), input._bigint) + BigInt(1);
     if (minNumberOfLimbs > input._numberOfLimbs) {
-      it('should throw new Error', function () {
+      it('should throw new Error that  NumberOfLimbs should be at least {minNumberOfLimbs}', function () {
         chai
           .expect(() =>
             con.minNumberOfLimbs(input._bigint, input._limbBitLength, input._numberOfLimbs),
@@ -234,9 +230,9 @@ describe('bigintTolimbs', function () {
 describe('limbsToBigint', function () {
   const inputs = [
     {
-      _bigint: 23n,
-      _limbBitLength: 2n,
-      _limbs: [0n, 0n, 0n, 1n, 1n, 3n],
+      _bigint: BigInt(23),
+      _limbBitLength: BigInt(2),
+      _limbs: [BigInt(0), BigInt(0), BigInt(0), BigInt(1), BigInt(1), BigInt(3)],
     },
   ];
 
@@ -253,22 +249,22 @@ describe('limbsToBigint', function () {
 describe('bigintToField', function () {
   const inputs = [
     {
-      _bigint: 30n,
-      _bigintModulus: 20n,
-      _field: 10n,
+      _bigint: BigInt(30),
+      _bigintModulus: BigInt(20),
+      _field: BigInt(10),
       _noOverflow: true,
     },
     {
-      _bigint: -30n,
-      _bigintModulus: 20n,
-      _field: 10n,
+      _bigint: BigInt(-30),
+      _bigintModulus: BigInt(20),
+      _field: BigInt(10),
       _noOverflow: true,
     },
   ];
 
   for (const input of inputs) {
     if (input._noOverflow && input._bigint > input._bigintModulus) {
-      it('should throw new Error', function () {
+      it('should throw new Error that field modulus overflow.', function () {
         chai
           .expect(() => con.bigintToField(input._bigint, input._bigintModulus, input._noOverflow))
           .to.throw();
@@ -287,8 +283,11 @@ describe('bigintToField', function () {
 describe('bigintToUtf8', function () {
   const inputs = [
     {
-      _bigint: 3430008n,
+      _bigint: BigInt(3430008),
       _utf8: '4Vx',
+    },
+    {
+      _bigint: BigInt(-3430008),
     },
   ];
 
@@ -301,7 +300,7 @@ describe('bigintToUtf8', function () {
         });
       });
     } else {
-      it('should throw new Error', function () {
+      it('should throw new Error that Input of bigintToUtf8 should be positive.', function () {
         chai.expect(() => con.bigintToUtf8(input._bigint, input._bigintModulus)).to.throw();
       });
     }
@@ -311,7 +310,7 @@ describe('bigintToUtf8', function () {
 describe('utf8ToBigint', function () {
   const inputs = [
     {
-      _bigint: 3430008n,
+      _bigint: BigInt(3430008),
       _utf8: '4Vx',
     },
   ];

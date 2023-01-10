@@ -12,13 +12,13 @@ const { generalise, GN, GO } = require('../index');
  */
 const hexString = '0xf198e3403bdda3a0';
 const binString = '1111000110011000111000110100000000111011110111011010001110100000';
-const bigintNumber = 17408914224622445472n;
+const bigintNumber = BigInt('17408914224622445472');
 const hex32String = '0x000000000000000000000000000000000000000000000000f198e3403bdda3a0';
 const hex324String = '0x000000000000000000000000000000000000000000000000000000003bdda3a0';
 const hex4String = '0x3bdda3a0';
-const limbs32 = [4053328704n, 1004381088n];
-const limbs324 = [0n, 0n, 4053328704n, 1004381088n];
-const field256nfalse = 160n;
+const limbs32 = [BigInt('4053328704'), BigInt('1004381088')];
+const limbs324 = [BigInt(0), BigInt(0), BigInt('4053328704'), BigInt('1004381088')];
+const field256nfalse = BigInt(160);
 
 describe('GeneralNumber class', function () {
   describe('Create GN from a BigInt', () => {
@@ -64,16 +64,16 @@ describe('GeneralNumber class', function () {
       chai.expect(() => gn.limbs()).to.throw();
     });
     it('should convert to limbs(32) correctly', function () {
-      chai.expect(limbs32).to.eql(gn.limbs(32n).__value);
+      chai.expect(limbs32).to.eql(gn.limbs(BigInt(32)).__value);
     });
     it('should convert to limbs(32,4) correctly', function () {
-      chai.expect(limbs324).to.eql(gn.limbs(32n, 4n).__value);
+      chai.expect(limbs324).to.eql(gn.limbs(BigInt(32), BigInt(4)).__value);
     });
-    it('should convert to field(256n,false) correctly', function () {
-      chai.expect(field256nfalse).to.eql(gn.field(256n, false).__value);
+    it('should convert to field(BigInt(256),false) correctly', function () {
+      chai.expect(field256nfalse).to.eql(gn.field(BigInt(256), false).__value);
     });
     it('should throw error because of overflow', function () {
-      chai.expect(() => gn.field(2n)).to.throw();
+      chai.expect(() => gn.field(BigInt(2))).to.throw();
     });
   });
 
@@ -107,22 +107,22 @@ describe('GeneralNumber class', function () {
       chai.expect(() => gn.limbs()).to.throw();
     });
     it('should convert to limbs(32) correctly', function () {
-      chai.expect(limbs32).to.eql(gn.limbs(32n).__value);
+      chai.expect(limbs32).to.eql(gn.limbs(BigInt(32)).__value);
     });
     it('should convert to limbs(32,4) correctly', function () {
-      chai.expect(limbs324).to.eql(gn.limbs(32n, 4n).__value);
+      chai.expect(limbs324).to.eql(gn.limbs(BigInt(32), BigInt(4)).__value);
     });
     it('should convert to limbs(32,4) and then convert tobinary correctly', function () {
-      chai.expect(binString).to.eql(gn.limbs(32n).binary);
+      chai.expect(binString).to.eql(gn.limbs(BigInt(32)).binary);
     });
     it('should convert to binaryArray correctly', function () {
       chai.expect(bigintToBinaryArray(bigintNumber)).to.eql(gn.binaryArray);
     });
-    it('should convert to field(256n,false) correctly', function () {
-      chai.expect(field256nfalse).to.eql(gn.field(256n, false).__value);
+    it('should convert to field(BigInt(256),false) correctly', function () {
+      chai.expect(field256nfalse).to.eql(gn.field(BigInt(256), false).__value);
     });
     it('should throw error because of overflow', function () {
-      chai.expect(() => gn.field(2n)).to.throw();
+      chai.expect(() => gn.field(BigInt(2))).to.throw();
     });
   });
 });
@@ -166,16 +166,16 @@ describe('Create GN from a binary string', () => {
     chai.expect(() => gn.limbs()).to.throw();
   });
   it('should convert to limbs(32) correctly', function () {
-    chai.expect(limbs32).to.eql(gn.limbs(32n).__value);
+    chai.expect(limbs32).to.eql(gn.limbs(BigInt(32)).__value);
   });
   it('should convert to limbs(32,4) correctly', function () {
-    chai.expect(limbs324).to.eql(gn.limbs(32n, 4n).__value);
+    chai.expect(limbs324).to.eql(gn.limbs(BigInt(32), BigInt(4)).__value);
   });
-  it('should convert to field(256n,false) correctly', function () {
-    chai.expect(field256nfalse).to.eql(gn.field(256n, false).__value);
+  it('should convert to field(BigInt(256),false) correctly', function () {
+    chai.expect(field256nfalse).to.eql(gn.field(BigInt(256), false).__value);
   });
   it('should throw error because of overflow', function () {
-    chai.expect(() => gn.field(2n)).to.throw();
+    chai.expect(() => gn.field(BigInt(2))).to.throw();
   });
 });
 
@@ -183,7 +183,7 @@ describe('Create GN from number', () => {
   const gn = new GN(12345);
 
   it('should convert to bigint correctly', function () {
-    chai.expect(12345n).to.eql(gn.bigint);
+    chai.expect(BigInt(12345)).to.eql(gn.bigint);
   });
 
   it('should convert to hex string correctly', function () {
@@ -211,7 +211,7 @@ describe('Create GN from number', () => {
   });
 
   it('should convert to binaryArray correctly', function () {
-    chai.expect(bigintToBinaryArray(12345n)).to.eql(gn.binaryArray);
+    chai.expect(bigintToBinaryArray(BigInt(12345))).to.eql(gn.binaryArray);
   });
 
   it('should convert to number correctlye', function () {
@@ -222,41 +222,43 @@ describe('Create GN from number', () => {
     chai.expect(() => gn.limbs()).to.throw();
   });
   it('should convert to limbs(32) correctly', function () {
-    chai.expect([12345n]).to.eql(gn.limbs(32n).__value);
+    chai.expect([BigInt(12345)]).to.eql(gn.limbs(BigInt(32)).__value);
   });
   it('should convert to limbs(32,4) correctly', function () {
-    chai.expect([0n, 0n, 0n, 12345n]).to.eql(gn.limbs(32n, 4n).__value);
+    chai
+      .expect([BigInt(0), BigInt(0), BigInt(0), BigInt(12345)])
+      .to.eql(gn.limbs(BigInt(32), BigInt(4)).__value);
   });
-  it('should convert to field(256n,false) correctly', function () {
-    chai.expect(57n).to.eql(gn.field(256n, false).__value);
+  it('should convert to field(BigInt(256),false) correctly', function () {
+    chai.expect(BigInt(57)).to.eql(gn.field(BigInt(256), false).__value);
   });
   it('should throw error because of overflow', function () {
-    chai.expect(() => gn.field(2n)).to.throw();
+    chai.expect(() => gn.field(BigInt(2))).to.throw();
   });
 });
 
 describe('Convert to utf8', () => {
   it('should convert to utf8 from number correctly', function () {
     const gn = new GN(123455);
-    chai.expect(bigintToUtf8(123455n)).to.eql(gn.utf8);
+    chai.expect(bigintToUtf8(BigInt(123455))).to.eql(gn.utf8);
   });
   it('should convert to utf8 from bigint correctly', function () {
-    const gn = new GN(123455n);
-    chai.expect(bigintToUtf8(123455n)).to.eql(gn.utf8);
+    const gn = new GN(BigInt(123455));
+    chai.expect(bigintToUtf8(BigInt(123455))).to.eql(gn.utf8);
   });
   it('should convert to utf8 from limbs correctly', function () {
-    const gn = new GN(123455n);
-    const gnLimbs = gn.limbs(32n);
-    chai.expect(bigintToUtf8(123455n)).to.eql(gnLimbs.utf8);
+    const gn = new GN(BigInt(123455));
+    const gnLimbs = gn.limbs(BigInt(32));
+    chai.expect(bigintToUtf8(BigInt(123455))).to.eql(gnLimbs.utf8);
   });
   it('should convert to utf8 from hex correctly', function () {
     const gn = new GN('0x1e23f');
-    chai.expect(bigintToUtf8(123455n)).to.eql(gn.utf8);
+    chai.expect(bigintToUtf8(BigInt(123455))).to.eql(gn.utf8);
   });
 });
 
 describe('Create GN from limbs', () => {
-  const gn = new GN([4053328704n, 1004381088n], 32n);
+  const gn = new GN([BigInt('4053328704'), BigInt('1004381088')], BigInt(32));
   it('should convert to bigint correctly', function () {
     chai.expect(bigintNumber).to.eql(gn.bigint);
   });
@@ -285,23 +287,23 @@ describe('Create GN from limbs', () => {
     chai.expect(() => gn.limbs()).to.throw();
   });
   it('should convert to limbs(32) correctly', function () {
-    chai.expect(limbs32).to.eql(gn.limbs(32n).__value);
+    chai.expect(limbs32).to.eql(gn.limbs(BigInt(32)).__value);
   });
   it('should convert to limbs(32,4) correctly', function () {
-    chai.expect(limbs324).to.eql(gn.limbs(32n, 4n).__value);
+    chai.expect(limbs324).to.eql(gn.limbs(BigInt(32), BigInt(4)).__value);
   });
-  it('should convert to field(256n,false) correctly', function () {
-    chai.expect(field256nfalse).to.eql(gn.field(256n, false).__value);
+  it('should convert to field(BigInt(256),false) correctly', function () {
+    chai.expect(field256nfalse).to.eql(gn.field(BigInt(256), false).__value);
   });
   it('should throw error because of overflow', function () {
-    chai.expect(() => gn.field(2n)).to.throw();
+    chai.expect(() => gn.field(BigInt(2))).to.throw();
   });
 });
 
 describe('Create GN from utf8', () => {
   const gn = new GN('hello');
   it('should convert to bigint correctly', function () {
-    chai.expect(448378203247n).to.eql(gn.bigint);
+    chai.expect(BigInt('448378203247')).to.eql(gn.bigint);
   });
   it('should convert to hex string correctly', function () {
     chai.expect('0x68656c6c6f').to.eql(gn.hex());
@@ -337,16 +339,18 @@ describe('Create GN from utf8', () => {
     chai.expect(() => gn.limbs()).to.throw();
   });
   it('should convert to limbs(32) correctly', function () {
-    chai.expect([104n, 1701604463n]).to.eql(gn.limbs(32n).__value);
+    chai.expect([BigInt(104), BigInt('1701604463')]).to.eql(gn.limbs(BigInt(32)).__value);
   });
   it('should convert to limbs(32,4) correctly', function () {
-    chai.expect([0n, 0n, 104n, 1701604463n]).to.eql(gn.limbs(32n, 4n).__value);
+    chai
+      .expect([BigInt(0), BigInt(0), BigInt(104), BigInt('1701604463')])
+      .to.eql(gn.limbs(BigInt(32), BigInt(4)).__value);
   });
-  it('should convert to field(256n,false) correctly', function () {
-    chai.expect(111n).to.eql(gn.field(256n, false).__value);
+  it('should convert to field(BigInt(256),false) correctly', function () {
+    chai.expect(BigInt(111)).to.eql(gn.field(BigInt(256), false).__value);
   });
   it('should throw error because of overflow', function () {
-    chai.expect(() => gn.field(2n)).to.throw();
+    chai.expect(() => gn.field(BigInt(2))).to.throw();
   });
 });
 
@@ -387,8 +391,8 @@ describe('generalise function', () => {
     chai.expect(deepEqual(gn1, gn2)).to.eql(true);
   });
   it('should output the same result as GeneralNumber class from limbs', function () {
-    const gn1 = generalise([4053328704n, 1004381088n], 32n);
-    const gn2 = new GN([4053328704n, 1004381088n], 32n);
+    const gn1 = generalise([BigInt('4053328704'), BigInt('1004381088')], BigInt(32));
+    const gn2 = new GN([BigInt('4053328704'), BigInt('1004381088')], BigInt(32));
     chai.expect(deepEqual(gn1, gn2)).to.eql(true);
   });
   it('should output the same result as GeneralNumber class from utf8', function () {
@@ -558,12 +562,12 @@ BigInt.prototype.mod = function (_m) {
 };
 describe('arithmatic function', () => {
   it('should perform addition correctly', function () {
-    const gnBigint = new GN(120n);
+    const gnBigint = new GN(BigInt(120));
     const gnHex = new GN('0x123');
     chai.expect(new GN(gnBigint.bigint + gnHex.bigint)).to.eql(gnBigint.add(gnHex));
   });
   it('should perform multiple additions correctly', function () {
-    const gnBigint = new GN(120n);
+    const gnBigint = new GN(BigInt(120));
     const gnHex = new GN('0x123');
     const gnBinary = new GN('110110');
     chai
@@ -571,107 +575,107 @@ describe('arithmatic function', () => {
       .to.eql(gnBigint.add(gnHex).add(gnBinary));
   });
   it('should perform sub correctly', function () {
-    const gnBigint = new GN(120n);
+    const gnBigint = new GN(BigInt(120));
     const gnHex = new GN('0x123');
     chai.expect(new GN(gnBigint.bigint - gnHex.bigint)).to.eql(gnBigint.sub(gnHex));
   });
   it('should perform mul correctly', function () {
-    const gnBigint = new GN(120n);
+    const gnBigint = new GN(BigInt(120));
     const gnHex = new GN('0x123');
     chai.expect(new GN(gnBigint.bigint * gnHex.bigint)).to.eql(gnBigint.mul(gnHex));
   });
   it('should perform addMod correctly', function () {
-    const gnBigint = new GN(120n);
+    const gnBigint = new GN(BigInt(120));
     const gnHex = new GN('0x123');
     chai
-      .expect(new GN((gnBigint.bigint + gnHex.bigint).mod(2n)))
-      .to.eql(gnBigint.addMod(gnHex, 2n));
+      .expect(new GN((gnBigint.bigint + gnHex.bigint).mod(BigInt(2))))
+      .to.eql(gnBigint.addMod(gnHex, BigInt(2)));
   });
   it('should perform addMod correctly', function () {
-    const gnBigint = new GN(120n);
+    const gnBigint = new GN(BigInt(120));
     const gnHex = new GN('0x123');
     chai
-      .expect(new GN((gnBigint.bigint + gnHex.bigint).mod(2n)))
-      .to.eql(gnBigint.addMod(gnHex, 2n));
+      .expect(new GN((gnBigint.bigint + gnHex.bigint).mod(BigInt(2))))
+      .to.eql(gnBigint.addMod(gnHex, BigInt(2)));
   });
   it('should perform multiple addMod correctly', function () {
-    const gnBigint = new GN(120n);
+    const gnBigint = new GN(BigInt(120));
     const gnHex = new GN('0x123');
     const gnBinary = new GN('110110');
     chai
-      .expect(new GN((gnBigint.bigint + gnHex.bigint + gnBinary.bigint).mod(2n)))
-      .to.eql(gnBigint.addMod(gnHex, 2n).addMod(gnBinary, 2n));
+      .expect(new GN((gnBigint.bigint + gnHex.bigint + gnBinary.bigint).mod(BigInt(2))))
+      .to.eql(gnBigint.addMod(gnHex, BigInt(2)).addMod(gnBinary, BigInt(2)));
   });
   it('should perform subMod correctly', function () {
-    const gnBigint = new GN(120n);
+    const gnBigint = new GN(BigInt(120));
     const gnHex = new GN('0x123');
     chai
-      .expect(new GN((gnBigint.bigint - gnHex.bigint).mod(2n)))
-      .to.eql(gnBigint.subMod(gnHex, 2n));
+      .expect(new GN((gnBigint.bigint - gnHex.bigint).mod(BigInt(2))))
+      .to.eql(gnBigint.subMod(gnHex, BigInt(2)));
   });
   it('should perform multiple subMod correctly', function () {
-    const gnBigint = new GN(120n);
+    const gnBigint = new GN(BigInt(120));
     const gnHex = new GN('0x123');
     const gnBinary = new GN('110110');
     chai
-      .expect(new GN((gnBigint.bigint - gnHex.bigint - gnBinary.bigint).mod(2n)))
-      .to.eql(gnBigint.subMod(gnHex, 2n).subMod(gnBinary, 2n));
+      .expect(new GN((gnBigint.bigint - gnHex.bigint - gnBinary.bigint).mod(BigInt(2))))
+      .to.eql(gnBigint.subMod(gnHex, BigInt(2)).subMod(gnBinary, BigInt(2)));
   });
   it('should perform mulMod correctly', function () {
-    const gnBigint = new GN(120n);
+    const gnBigint = new GN(BigInt(120));
     const gnHex = new GN('0x123');
     chai
-      .expect(new GN((gnBigint.bigint * gnHex.bigint).mod(2n)))
-      .to.eql(gnBigint.mulMod(gnHex, 2n));
+      .expect(new GN((gnBigint.bigint * gnHex.bigint).mod(BigInt(2))))
+      .to.eql(gnBigint.mulMod(gnHex, BigInt(2)));
   });
   it('should perform multiple mulMod correctly', function () {
-    const gnBigint = new GN(120n);
+    const gnBigint = new GN(BigInt(120));
     const gnHex = new GN('0x123');
     const gnBinary = new GN('110110');
     chai
-      .expect(new GN((gnBigint.bigint * gnHex.bigint * gnBinary.bigint).mod(2n)))
-      .to.eql(gnBigint.mulMod(gnHex, 2n).mulMod(gnBinary, 2n));
+      .expect(new GN((gnBigint.bigint * gnHex.bigint * gnBinary.bigint).mod(BigInt(2))))
+      .to.eql(gnBigint.mulMod(gnHex, BigInt(2)).mulMod(gnBinary, BigInt(2)));
   });
   it('should perform powMod correctly', function () {
-    const gnBigint = new GN(120n);
+    const gnBigint = new GN(BigInt(120));
     const gnHex = new GN('0x123');
     chai
-      .expect(new GN((gnBigint.bigint ** gnHex.bigint).mod(2n)))
-      .to.eql(gnBigint.powMod(gnHex, 2n));
+      .expect(new GN((gnBigint.bigint ** gnHex.bigint).mod(BigInt(2))))
+      .to.eql(gnBigint.powMod(gnHex, BigInt(2)));
   });
   it('should perform abs correctly', function () {
-    const gnBigint = new GN(-120n);
-    chai.expect(new GN(120n)).to.eql(gnBigint.abs());
+    const gnBigint = new GN(BigInt(-120));
+    chai.expect(new GN(BigInt(120))).to.eql(gnBigint.abs());
   });
   it('should perform egcd correctly', function () {
-    const gnBigint = new GN(120n);
+    const gnBigint = new GN(BigInt(120));
     const gnHex = new GN('0x123');
     const desiredResult = {
-      g: 3n,
-      x: 17n,
-      y: -7n,
+      g: BigInt(3),
+      x: BigInt(17),
+      y: BigInt(-7),
     };
     chai.expect(desiredResult).to.eql(gnBigint.egcd(gnHex).__value);
   });
   it('should perform gcd correctly', function () {
-    const gnBigint = new GN(120n);
+    const gnBigint = new GN(BigInt(120));
     const gnHex = new GN('0x123');
-    const desiredResult = 3n;
+    const desiredResult = BigInt(3);
     chai.expect(desiredResult).to.eql(gnBigint.gcd(gnHex).__value);
   });
   it('should perform lcm correctly', function () {
-    const gnBigint = new GN(120n);
+    const gnBigint = new GN(BigInt(120));
     const gnHex = new GN('0x123');
-    const desiredResult = 11640n;
+    const desiredResult = BigInt(11640);
     chai.expect(desiredResult).to.eql(gnBigint.lcm(gnHex).__value);
   });
   it('should perform max correctly', function () {
-    const gnBigint = new GN(120n);
-    const gnBigint2 = new GN(1n);
+    const gnBigint = new GN(BigInt(120));
+    const gnBigint2 = new GN(BigInt(1));
     chai.expect(gnBigint).to.eql(gnBigint.max(gnBigint2));
   });
   it('should perform min correctly', function () {
-    const gnBigint = new GN(120n);
+    const gnBigint = new GN(BigInt(120));
     const gnHex = new GN('0x1000000');
     chai.expect(gnBigint).to.eql(gnBigint.min(gnHex));
   });

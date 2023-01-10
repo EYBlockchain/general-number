@@ -17,6 +17,7 @@
     "url": "https://github.com/EYBlockchain/general-number/issues"
   },
   "devDependencies": {
+    "mocha": "^9.2.2",
     "prettier": "^2.0.5"
   },
   "dependencies": {
@@ -24,7 +25,6 @@
     "chai": "^4.3.7",
     "eslint": "^6.8.0",
     "eslint-config-codfish": "^2.5.0",
-    "mocha": "^10.1.0",
     "winston": "^3.3.3"
   },
   "homepage": "https://github.com/EYBlockchain/general-number#readme"

@@ -1,291 +1,409 @@
-/* eslint-disable no-control-regex, no-underscore-dangle, no-use-before-define, max-classes-per-file, no-restricted-syntax */
+const {
+  parseHex,
+  bigintToHex,
+  hexToBigint,
+  bigintToBinary,
+  bigintToBinaryArray,
+  binaryToBigint,
+  bigintToNumber,
+  numberTobigint,
+  bigintTolimbs,
+  limbsToBigint,
+  bigintToField,
+  bigintToUtf8,
+  utf8ToBigint,
+} = require('./conversion');
 
 const {
-  resizeHex,
-  isHex,
-  ensure0x,
-  hexToBinArray,
-  hexToBin,
-  hexToBytes,
-  hexToDec,
-  hexToField,
-  hexToAscii,
-  hexToUtf8,
-  hexToLimbs,
-  hexToDecLimbs,
-  binToHex,
-  decToHex,
-  utf8ToHex,
-  asciiToHex,
-} = require('@eyblockchain/zkp-utils');
-const { logger } = require('./logger');
+  addBigInt,
+  subBigInt,
+  mulBigInt,
+  addModBigInt,
+  subModBigInt,
+  mulModBigInt,
+  absBigInt,
+  eGcdBigInt,
+  gcdBigInt,
+  lcmBigInt,
+  maxBigInt,
+  minBigInt,
+  powModBigInt,
+} = require('./function');
 
-/**
- * @dev:
- *  - Instead of relying on inference, users will occasionally need to explicitly pass a 'type' parameter to the `new GeneralNumber()` constructor.
- *  - 'hex' values are only _inferred_ as 'hex' if they have an 0x prefix (otherwise they could be inferred as ascii or integer).
- *  - 'binary' values CANNOT be inferred as 'binary'; they'd be confused with 'integer'. The 'binary' type MUST be explicitly passed to the `new GeneralNumber()` constructor in order to generalise a binary number. You CANNOT use the `generalise()` function to generalise a 'binary' value; it would incorrectly be inferred as an integer.
- *  - 'limbs' values CAN be inferred as 'limbs', BUT ONLY IF passed _directly_ to the `new GeneralNumber()` constructor. You CANNOT use the `generalise()` function to generalise a 'limbs' value; it would be incorrectly interpreted as a standard array of values (resulting in incorrect conversion to other types).
- *
- */
+function isBinary(str) {
+  let isBinaryFlag = false;
+  let count = 0;
+  for (let i = 0; i < str.length; i++) {
+    if (str[i] === '0' || str[i] === '1') {
+      count += 1;
+    }
+  }
+  if (count === str.length) {
+    isBinaryFlag = true;
+  }
+  return isBinaryFlag;
+}
+
+function isHex(_hex) {
+  const hexMatch = _hex.match(/^(0x)([\da-fA-F]+)$/);
+  if (hexMatch == null) return false;
+  return true;
+}
+
 const inferType = value => {
   if (value === undefined) throw new Error('Input value was undefined');
   if (value === '') throw new Error('Input was empty');
-  if (typeof Object(value).valueOf() === 'bigint') return 'bigint';
   if (Array.isArray(value)) {
     // ensure all elements of the array are of the same type:
-    if (value.map(inferType).every((val, i, arr) => val === arr[0])) return 'limbs'; // infer arrays whcich contain elements of the same type as 'limbs'
+    if (value.map(inferType).every((val, i, arr) => val === arr[0])) return 'limbs';
+    // infer arrays whcich contain elements of the same type as 'limbs'
   }
+  if (typeof Object(value).valueOf() === 'bigint') {
+    return 'bigint';
+  }
+
   if (typeof value === 'object') {
-    throw new Error(
-      `Cannot construct a new GeneralNumber from an object (unless it's a 'BigInt' or 'limbs' array). Received ${value}. Try using the 'generalise()' function on this object instead.`,
-    );
+    if (value.__limbBitLength === BigInt(0)) {
+      return 'bigint';
+    }
+    return 'limbs';
   }
-  if (typeof value === 'boolean') return 'boolean';
+  if (typeof value === 'string') {
+    if (isBinary(value) === true) {
+      return 'binary';
+    }
+  }
+  if (/^[0-9]+$/.test(value)) return 'number'; // same effect as 'decimal' or 'number'
   if (isHex(value) === true) return 'hex';
-  if (/^[0-9]+$/.test(value)) return 'integer'; // same effect as 'decimal' or 'number'
-  if (/^[\x00-\x7F]*$/.test(value) === true) return 'ascii';
   return 'utf8';
 };
 
-/**
- * Whilst the 'inferType' function can infer a value's 'type' for many types of input value, there are some types which cannot be inferred.
- * Also, a user might choose to specify a type when constructing a new GeneralNumber - so we need to check the type they've specified is actually correct for the input value.
- */
-const checkType = (value, purportedType) => {
-  let pass;
-  switch (purportedType) {
-    default:
-      pass = purportedType === inferType(value);
-      break;
-    case 'integer':
-    case 'decimal':
-    case 'number':
-      pass = inferType(value) === 'integer';
-      break;
-    case 'hex':
-      // allow non-0x-prefixed hex values if user has explicitly passed `type = 'hex'` to the GeneralNumber constructor:
-      pass = isHex(ensure0x(value));
-      break;
-    case 'binary':
-      // allow binary values if user has explicitly passed `type = 'binary'` to the GeneralNumber constructor:
-      pass = /^[0-1]+$/.test(value);
-      break;
-    case 'utf8':
-      pass = purportedType === inferType(value) || inferType(value) === 'ascii';
-  }
-  if (!pass)
-    throw new Error(
-      `Type check failure. Input value ${value} is not of purported type ${purportedType}.`,
-    );
-};
-
-/**
- * Stitches limbs back together
- * @param {BigInt} limbBits - the length of the limb in bits
- */
-const stitchLimbs = (_limbs, _limbBits = 256) => {
-  const limbBits = BigInt(_limbBits);
-  const number = _limbs
-    .reverse()
-    .reduce(
-      (acc, cur, idx) => acc + BigInt(cur) * BigInt(2) ** (limbBits * BigInt(idx)),
-      BigInt(0),
-    );
-  return `0x${number.toString(16)}`;
-};
-
-const convertToHex = (value, type) => {
+const convertToBigint = (value, type, limbBitLength) => {
   switch (type) {
     default:
       throw new Error(`invalid type "${type}"`);
     case 'hex':
-      return ensure0x(value);
+      return hexToBigint(value);
     case 'binary':
-      return binToHex(value);
+      return binaryToBigint(value);
     case 'decimal':
     case 'integer':
     case 'number':
-      return decToHex(value.toString());
+      return numberTobigint(value);
     case 'bigint':
-      return ensure0x(value.toString(16));
-    case 'boolean':
-      return value ? '0x01' : '0x00';
-    case 'ascii':
-      return asciiToHex(value);
+      return value;
     case 'utf8':
-      return utf8ToHex(value);
+      return utf8ToBigint(value);
     case 'limbs':
-      return stitchLimbs(value);
+      if (limbBitLength === undefined) {
+        throw new Error(`limbBitLength is not defined.`);
+      } else return limbsToBigint(value, limbBitLength);
   }
 };
 
-/**
- * This class defines a 'general' number.  That's basically an object that can return a conversion of the original number into another common type: 'hex', 'integer', 'decimal', 'number', 'binary', 'bigint', 'boolean', 'ascii', 'utf8', 'limbs'.
- *
- * @param {string} value the input value
- * @param {string} type enum:
- *  OPTIONAL types (can be inferred otherwise): ['hex', 'integer', 'decimal', 'number', 'bigint', 'boolean', 'ascii', 'utf8', 'limbs']
- * Note: 'hex' values can only be inferred if they have an '0x' prefix).
- * Note: 'limbs' are arrays of values (arranged in big endian order).
- * Note: 'limbs' containing binary values are NOT supported.
- *
- * EXPLICIT types (cannot be inferred, so must be specified): ['binary']
- *
- * @warning The `new GeneralNumber()` constructor infers DIFFERENTLY from the `generalise()` function. E.g. `generalise()` cannot infer 'limbs' values as 'limbs'. See details on the `inferType()` and `generalise()` functions.
- */
 class GeneralNumber {
-  constructor(value, type) {
+  constructor(value, limbBitLength) {
     if (value === undefined) throw new Error('Input value is undefined');
     if (value === '') throw new Error('Input is empty');
-    if (type) {
-      checkType(value, type);
-    } else {
-      type = inferType(value); // eslint-disable-line no-param-reassign
+    // if (type) {
+    //   checkType(value, type);
+    // } else {
+    const type = inferType(value);
+
+    // }
+    this.__value = convertToBigint(value, type, limbBitLength);
+    this.__limbBitLength = BigInt(0);
+  }
+
+  get toBigint() {
+    if (typeof this.__value === 'object') {
+      return Object.values(this.__value);
     }
-    // regardless of the input type, we convert it to hex and store it as hex:
-    this._hex = convertToHex(value, type);
+    return this.__value;
+  }
+
+  get toLimbs() {
+    if (typeof this.__value === 'object') {
+      return Object.values(this.__value);
+    }
+    return this.__value;
   }
 
   get binary() {
-    return hexToBin(this._hex);
+    const type = inferType(this.__value);
+    this.__value = convertToBigint(this.__value, type, this.__limbBitLength);
+    this.__limbBitLength = BigInt(0);
+    return bigintToBinary(this.__value);
   }
 
   get binaryArray() {
-    return hexToBinArray(this._hex);
+    const type = inferType(this.__value);
+    this.__value = convertToBigint(this.__value, type, this.__limbBitLength);
+    this.__limbBitLength = BigInt(0);
+    return bigintToBinaryArray(this.__value);
   }
 
-  get bytes() {
-    return hexToBytes(this._hex);
-  }
-
-  // returns the decimal representation, as a String type. Synonymous with `integer()`.
   get decimal() {
-    return hexToDec(this._hex);
+    const type = inferType(this.__value);
+    this.__value = convertToBigint(this.__value, type, this.__limbBitLength);
+    this.__limbBitLength = BigInt(0);
+    return bigintToNumber(this.__value);
   }
 
-  // returns the decimal representation, as a String type. Synonymous with `decimal()`.
   get integer() {
-    return hexToDec(this._hex);
+    const type = inferType(this.__value);
+    this.__value = convertToBigint(this.__value, type, this.__limbBitLength);
+    this.__limbBitLength = BigInt(0);
+    return bigintToNumber(this.__value);
   }
 
-  // returns the decimal representation, as a Number type (if less than javascript's MAX_SAFE_INTEGER). (Otherwise it will throw).
   get number() {
-    const int = hexToDec(this._hex);
-    const num = Number(int);
-    if (num > Number.MAX_SAFE_INTEGER)
-      throw new Error(`Cannot safely coerce int=${int} into a js Number(int)=${num}`);
-    return num;
+    const type = inferType(this.__value);
+    this.__value = convertToBigint(this.__value, type, this.__limbBitLength);
+    this.__limbBitLength = BigInt(0);
+    return bigintToNumber(this.__value);
   }
 
-  get bigInt() {
-    return BigInt(this._hex);
-  }
-
-  get boolean() {
-    switch (BigInt(this._hex)) {
-      default:
-        throw new Error(`${this._hex} cannot be converted to boolean`);
-      case BigInt(1):
-        return true;
-      case BigInt(0):
-        return false;
-    }
-  }
-
-  get ascii() {
-    return hexToAscii(this._hex);
+  get bigint() {
+    const type = inferType(this.__value);
+    this.__value = convertToBigint(this.__value, type, this.__limbBitLength);
+    this.__limbBitLength = BigInt(0);
+    return this.__value;
   }
 
   get utf8() {
-    return hexToUtf8(this._hex);
+    const type = inferType(this.__value);
+    this.__value = convertToBigint(this.__value, type, this.__limbBitLength);
+    this.__limbBitLength = BigInt(0);
+    return bigintToUtf8(this.__value);
   }
 
-  // Safe fallback for accidentally calling '.all' on a GeneralNumber (rather than a GeneralObject, which actuallty supports this property)
+  get ascii() {
+    const type = inferType(this.__value);
+    this.__value = convertToBigint(this.__value, type, this.__limbBitLength);
+    this.__limbBitLength = BigInt(0);
+    return bigintToUtf8(this.__value);
+  }
+
   get all() {
     return this;
   }
 
-  // returns a limbed value. Inspired by 'u32' type notation.
-  limbs(
-    limbBitLength, //
-    numberOfLimbs = undefined,
-    returnType = 'decimal',
-    throwErrors = false,
-  ) {
-    if (!limbBitLength) throw new Error('limbBitLength not specified');
-    switch (returnType) {
-      default:
-        throw new Error(`unsupported return type "${returnType}"`);
-      case 'hex':
-        return hexToLimbs(
-          this._hex, //
-          limbBitLength,
-          numberOfLimbs,
-          throwErrors,
-        );
-      case 'decimal':
-      case 'integer':
-      case 'number':
-        return hexToDecLimbs(
-          this._hex, //
-          limbBitLength,
-          numberOfLimbs,
-          throwErrors,
-        );
+  limbs(_limbBitLength, _numberOfLimbs) {
+    if (inferType(this.__value) === 'limbs') {
+      this.__value = limbsToBigint(this.__value, _limbBitLength);
+      this.__limbBitLength = BigInt(0);
+    }
+    let _numberOfLimbsBigint = BigInt(0);
+    if (!_limbBitLength) throw new Error('limbBitLength not specified');
+    const _limbBitLengthBigint = new GeneralNumber(_limbBitLength).__value;
+    if (_numberOfLimbs !== undefined) {
+      _numberOfLimbsBigint = new GeneralNumber(_numberOfLimbs).__value;
+      const limbsString = bigintTolimbs(this.__value, _limbBitLengthBigint, _numberOfLimbsBigint);
+      this.__value = limbsString;
+      this.__limbBitLength = _limbBitLengthBigint;
+      return this;
+      // eslint-disable-next-line no-else-return
+    } else {
+      const limbsString = bigintTolimbs(this.__value, _limbBitLengthBigint);
+      this.__value = limbsString;
+      this.__limbBitLength = _limbBitLengthBigint;
+      return this;
     }
   }
 
-  /**
-  @param {String} byteLength - the byte-length of the number.
-  @param {String} butTruncateValueToByteLength - OPTIONAL - we can truncate the value to be a smaller byte size, whilst still returning a string of length byteLength (padded with zeros)
-  e.g.
-  const myGN = new GN('0x12345678') // 4 bytes
-  console.log(myGN.hex(4)) // '0x12345678'
-  console.log(myGN.hex(3)) // '0x345678'
-  console.log(myGN.hex(5)) // '0x0012345678'
-  console.log(myGN.hex(5, 4)) // '0x0012345678'
-  console.log(myGN.hex(5, 3)) // '0x0000345678'
-  console.log(myGN.hex(4, 5)) // 'ERROR'
-  */
   hex(byteLength, butTruncateValueToByteLength = 0) {
-    let result = this._hex;
+    if (inferType(this.__value) === 'limbs') {
+      // eslint-disable-next-line no-undef
+      this.__value = limbsToBigint(this.__value);
+    }
+    let hexString = bigintToHex(this.__value);
     if (byteLength) {
       if (butTruncateValueToByteLength) {
         if (butTruncateValueToByteLength > byteLength)
           throw new Error(
             `butTruncateValueToByteLength (${butTruncateValueToByteLength}) > byteLength (${byteLength})`,
           );
-        result = resizeHex(result, 2 * butTruncateValueToByteLength);
+        hexString = parseHex(hexString, true, butTruncateValueToByteLength);
       }
-      result = resizeHex(result, 2 * byteLength);
+      hexString = parseHex(hexString, true, byteLength);
     }
-    return result;
+    this.__limbBitLength = BigInt(0);
+    return hexString;
   }
 
-  field(modulus, noOverflow = true) {
-    if (!modulus) throw new Error('no field modulus specified');
-    return hexToField(this._hex, modulus, noOverflow);
+  field(__valueModulus, noOverflow = true) {
+    if (inferType(this.__value) === 'limbs') {
+      this.__value = limbsToBigint(this.__value, this.__limbBitLength);
+    }
+    // this._modulus = __valueModulus;
+    if (!__valueModulus) throw new Error('no field modulus specified');
+    if (typeof _addend !== 'object') {
+      // eslint-disable-next-line no-param-reassign
+      __valueModulus = new GeneralNumber(__valueModulus).__value;
+    }
+    const fieldResult = bigintToField(this.__value, __valueModulus, noOverflow);
+    // this._field = fieldResult;
+    this.__value = fieldResult;
+    this.__limbBitLength = BigInt(0);
+    return this;
+  }
+
+  add(_addend) {
+    if (typeof _addend !== 'object') {
+      // eslint-disable-next-line no-param-reassign
+      _addend = new GeneralNumber(_addend);
+    }
+    const result = addBigInt(this.__value, _addend.__value);
+    this.__value = result;
+    return this;
+  }
+
+  sub(_minuend) {
+    if (typeof _minuend !== 'object') {
+      // eslint-disable-next-line no-param-reassign
+      _minuend = new GeneralNumber(_minuend);
+    }
+    const result = subBigInt(this.__value, _minuend.__value);
+    this.__value = result;
+    return this;
+  }
+
+  mul(_multiplicand) {
+    if (typeof _multiplicand !== 'object') {
+      // eslint-disable-next-line no-param-reassign
+      _multiplicand = new GeneralNumber(_multiplicand);
+    }
+    const result = mulBigInt(this.__value, _multiplicand.__value);
+    this.__value = result;
+    return this;
+  }
+
+  addMod(_addend, _modular) {
+    if (typeof _addend !== 'object') {
+      // eslint-disable-next-line no-param-reassign
+      _addend = new GeneralNumber(_addend);
+    }
+    if (typeof _modular !== 'object') {
+      // eslint-disable-next-line no-param-reassign
+      _modular = new GeneralNumber(_modular);
+    }
+    const result = addModBigInt(this.__value, _addend.__value, _modular.__value);
+    this.__value = result;
+    return this;
+  }
+
+  subMod(_minuend, _modular) {
+    if (typeof _minuend !== 'object') {
+      // eslint-disable-next-line no-param-reassign
+      _minuend = new GeneralNumber(_minuend);
+    }
+    if (typeof _modular !== 'object') {
+      // eslint-disable-next-line no-param-reassign
+      _modular = new GeneralNumber(_modular);
+    }
+    const result = subModBigInt(this.__value, _minuend.__value, _modular.__value);
+    this.__value = result;
+    return this;
+  }
+
+  mulMod(_multiplicand, _modular) {
+    if (typeof _multiplicand !== 'object') {
+      // eslint-disable-next-line no-param-reassign
+      _multiplicand = new GeneralNumber(_multiplicand);
+    }
+    if (typeof _modular !== 'object') {
+      // eslint-disable-next-line no-param-reassign
+      _modular = new GeneralNumber(_modular);
+    }
+    const result = mulModBigInt(this.__value, _multiplicand.__value, _modular.__value);
+    this.__value = result;
+    return this;
+  }
+
+  powMod(_exponent, _modular) {
+    if (typeof _exponent !== 'object') {
+      // eslint-disable-next-line no-param-reassign
+      _exponent = new GeneralNumber(_exponent);
+    }
+    if (typeof _modular !== 'object') {
+      // eslint-disable-next-line no-param-reassign
+      _modular = new GeneralNumber(_modular);
+    }
+    const _base = this.__value;
+    const result = powModBigInt(_base, _exponent.__value, _modular.__value);
+    this.__value = result;
+    return this;
+  }
+
+  abs() {
+    const result = absBigInt(this.__value);
+    this.__value = result;
+    return this;
+  }
+
+  egcd(_secondInput) {
+    if (typeof _secondInput !== 'object') {
+      // eslint-disable-next-line no-param-reassign
+      _secondInput = new GeneralNumber(_secondInput);
+    }
+    const result = eGcdBigInt(this.__value, _secondInput.__value);
+    this.__value = result;
+    return this;
+  }
+
+  gcd(_secondInput) {
+    if (typeof _secondInput !== 'object') {
+      // eslint-disable-next-line no-param-reassign
+      _secondInput = new GeneralNumber(_secondInput);
+    }
+    const result = gcdBigInt(this.__value, _secondInput.__value);
+    this.__value = result;
+    return this;
+  }
+
+  lcm(_secondInput) {
+    if (typeof _secondInput !== 'object') {
+      // eslint-disable-next-line no-param-reassign
+      _secondInput = new GeneralNumber(_secondInput);
+    }
+    const result = lcmBigInt(this.__value, _secondInput.__value);
+    this.__value = result;
+    return this;
+  }
+
+  max(_secondInput) {
+    if (typeof _secondInput !== 'object') {
+      // eslint-disable-next-line no-param-reassign
+      _secondInput = new GeneralNumber(_secondInput);
+    }
+    const result = maxBigInt(this.__value, _secondInput.__value);
+    this.__value = result;
+    return this;
+  }
+
+  min(_secondInput) {
+    if (typeof _secondInput !== 'object') {
+      // eslint-disable-next-line no-param-reassign
+      _secondInput = new GeneralNumber(_secondInput);
+    }
+    const result = minBigInt(this.__value, _secondInput.__value);
+    this.__value = result;
+    return this;
   }
 }
 
-// Add a new hidden property '.all' to the object/array, which returns a GeneralObject. A GeneralObject allows us to collapse all items in the object/array into the same type.
 const attachPropertyAll = thing => {
-  try {
-    Object.defineProperty(thing, 'all', {
-      get() {
-        return new GeneralObject(thing);
-      },
-      configurable: true,
-    });
-  } catch (err) {
-    logger.error(`Error adding property '.all' to this:`);
-    logger.error(thing);
-    throw new Error(err);
-  }
+  Object.defineProperty(thing, 'all', {
+    get() {
+      // eslint-disable-next-line no-use-before-define
+      return new GeneralObject(thing);
+    },
+    configurable: true,
+  });
 };
 
-const generalise = thing => {
+const generalise = (thing, limbBitLength) => {
   if (typeof thing === 'undefined') {
     return thing;
   }
@@ -294,9 +412,12 @@ const generalise = thing => {
   }
   if (typeof Object(thing).valueOf() === 'bigint') {
     // a bigint is not to be confused with a regular object, and so this check must come first
-    return new GN(thing);
+    return new GeneralNumber(thing);
   }
   if (typeof thing === 'object') {
+    if (limbBitLength !== undefined) {
+      return new GeneralNumber(thing, limbBitLength);
+    }
     const result = Array.isArray(thing) ? [] : {};
     for (const [key, value] of Object.entries(thing)) {
       result[key] = generalise(value);
@@ -304,14 +425,9 @@ const generalise = thing => {
     attachPropertyAll(result);
     return result;
   }
-  return new GN(thing);
+  return new GeneralNumber(thing);
 };
 
-/**
-@param {object || array} _object
-@param {string} type
-@param {array} args - OPTIONAL
-*/
 const convert = (thing, type, args) => {
   if (typeof thing !== 'object')
     throw new Error(`Attempting to 'convert' something other than an object/array: ${thing}`);
@@ -328,12 +444,6 @@ const convert = (thing, type, args) => {
   return result;
 };
 
-/**
-Create a GeneralObject; an object where each key is a GeneralNumber. Whilst the `generalise()` function can achieve this too, a GeneralObject's getters form a convenience way of "collapsing" all of the generalised object's keys _back_ into a particular type.
-E.g.
-const myGO = new GeneralObject(myObject);
-console.log(myGO.hex(64)); // collapses all keys of the object into hex values of length 64.
-*/
 class GeneralObject {
   constructor(object) {
     this._object = generalise(object);
@@ -348,11 +458,7 @@ class GeneralObject {
   }
 
   get binaryArray() {
-    return convert(this._object, 'binaryArray');
-  }
-
-  get bytes() {
-    return convert(this._object, 'bytes');
+    return bigintToBinaryArray(this._object, 'binaryArray');
   }
 
   get decimal() {
@@ -371,28 +477,19 @@ class GeneralObject {
     return convert(this._object, 'bigInt');
   }
 
-  get ascii() {
-    return convert(this._object, 'ascii');
-  }
-
   get utf8() {
     return convert(this._object, 'utf8');
   }
 
-  limbs(limbBitLength, numberOfLimbs, returnType, throwErrors) {
+  limbs(limbBitLength, numberOfLimbs) {
     return convert(this._object, 'limbs', [
       limbBitLength, //
       numberOfLimbs,
-      returnType,
-      throwErrors,
     ]);
   }
 
-  hex(byteLength, butTruncateValueToByteLength = 0) {
-    return convert(this._object, 'hex', [
-      byteLength, //
-      butTruncateValueToByteLength,
-    ]);
+  hex(byteLength) {
+    return convert(this._object, 'hex', [byteLength]);
   }
 
   field(modulus) {
@@ -411,6 +508,5 @@ module.exports = {
   generalize,
   GeneralObject,
   GO,
-  convertToHex,
-  stitchLimbs,
+  convertToBigint,
 };
